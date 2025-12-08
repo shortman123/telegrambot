@@ -170,6 +170,43 @@ Since you want the bot "hosted" like other bots, here are free/cheap options to 
 
 This way, your bot is "hosted" by these services, not running on your local machine forever.
 
+## Railway Deployment 🚂
+
+For easy cloud deployment with 24/7 uptime:
+
+### 1. Create Railway Account
+- Go to [Railway.app](https://railway.app)
+- Sign up with GitHub
+
+### 2. Deploy from GitHub
+- Connect your GitHub repository
+- Railway will automatically detect Python app
+- Set environment variables in Railway dashboard:
+  ```
+  BOT_TOKEN=your_telegram_bot_token
+  CHANNEL_ID=your_channel_id
+  ADMIN_IDS=admin_id_1,admin_id_2
+  BOT_USERNAME=your_bot_username
+  ```
+
+### 3. Set Webhook (Important!)
+After deployment, Railway will provide a URL like `https://your-app-name.up.railway.app`
+
+Set the webhook by running locally:
+```bash
+curl "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://your-app-name.up.railway.app/webhook"
+```
+
+Or use the Railway CLI:
+```bash
+railway run curl "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=$(railway domain)/webhook"
+```
+
+### 4. Monitor Your Bot
+- Check Railway logs for bot status
+- Visit `https://your-app-name.up.railway.app/health` for health check
+- Bot will automatically handle webhook updates
+
 ## How it works
 
 - Users start the bot with /start

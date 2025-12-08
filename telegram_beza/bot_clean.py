@@ -66,6 +66,18 @@ def save_comments(comments):
     with open(COMMENTS_FILE, 'w') as f:
         json.dump(comments, f, indent=2)
 
+def get_next_confession_id():
+    """Get the next sequential confession ID (no gaps)."""
+    pending = load_pending()
+    approved = load_approved()
+    
+    # Find the highest ID used so far
+    max_pending_id = max([conf.get('id', 0) for conf in pending], default=0)
+    max_approved_id = max([conf.get('id', 0) for conf in approved], default=0)
+    
+    # Return the next sequential ID
+    return max(max_pending_id, max_approved_id) + 1
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Handle deep link for commenting
     if context.args and len(context.args) > 0 and context.args[0].startswith('comment_'):
@@ -116,7 +128,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def receive_confession(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
     confession = {
-        'id': len(load_pending()) + 1,
+        'id': get_next_confession_id(),
         'user_id': user.id,
         'username': user.username,
         'first_name': user.first_name,
