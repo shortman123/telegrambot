@@ -1127,6 +1127,49 @@ All interactions are through buttons - no commands needed! 🎯
             await query.answer("Confession not found")
             return MAIN_MENU
         
+        # Load approved comments for this confession
+        comments = load_comments()
+        conf_comments = [c for c in comments if c.get('confession_id') == conf_id and c.get('approved', False)]
+        
+        # Build comment interface
+        message_text = f'💬 Comment on Confession #{conf_id:03d} 💬\n\n'
+        message_text += '📝 Confession:\n' + conf['text'] + '\n\n'
+        
+        if conf_comments:
+            message_text += '💭 Community Comments:\n\n'
+            for comment in conf_comments[-5:]:  # Show last 5 comments
+                message_text += f'#{comment["id"]:03d}: {comment["text"]}\n\n'
+        else:
+            message_text += '❓ No comments yet. Be the first!\n\n'
+        
+        message_text += 'What do you think? Share your thoughts below!\n\n'
+        message_text += 'Example: This really resonates with me...\n\n'
+        message_text += 'Your comment will be live instantly!'
+        
+        keyboard = [
+            [InlineKeyboardButton('💭 Add My Comment', callback_data=f'add_comment_{conf_id}')],
+            [InlineKeyboardButton('🔄 Refresh Comments', callback_data=f'comment_on_{conf_id}')],
+            [InlineKeyboardButton('⬅️ Back to Confessions', callback_data='comment_help')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await query.edit_message_text(message_text, reply_markup=reply_markup)
+        return MAIN_MENU
+    elif query.data.startswith('add_comment_'):
+        # Extract confession ID from callback data
+        try:
+            conf_id = int(query.data.split('_')[2])
+        except (IndexError, ValueError):
+            await query.answer("Confession ID is whack")
+            return MAIN_MENU
+        
+        # Check if confession exists
+        approved = load_approved()
+        conf = next((c for c in approved if c['id'] == conf_id), None)
+        if not conf:
+            await query.answer("Confession not found")
+            return MAIN_MENU
+        
         # Set up comment session
         context.user_data['comment_conf_id'] = conf_id
         
@@ -1141,7 +1184,7 @@ All interactions are through buttons - no commands needed! 🎯
             f'📝 Confession: {preview}\n\n'
             'Drop your anonymous comment below.\n\n'
             'Example: This shit really hit home!\n\n'
-            'Your comment will be reviewed before exploding live.',
+            'Your comment will be live instantly!',
             reply_markup=reply_markup
         )
         return ASK_COMMENT
@@ -1490,12 +1533,6 @@ Stay wild and be decent! 🙏
         # Set state for receiving admin reply
         print("State set to ADMIN_REPLY_STATE")
         return ADMIN_REPLY_STATE
-
-@app.route('/webhook', methods=['POST'])
-async def webhook():
-    update = Update.de_json(request.get_json(force=True), application.bot)
-    await application.process_update(update)
-    return 'OK'
 
 def setup_credentials():
     """Check if credentials are set."""
