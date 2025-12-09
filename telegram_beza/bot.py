@@ -1013,17 +1013,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard = [[InlineKeyboardButton("⬅️ Take Me Back", callback_data='back_to_menu')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(
-            'Your Story Matters - Let\'s Begin ✨\n\n'
-            'Take a deep breath... 🌬️\n\n'
-            'This is your safe space - no judgment, only understanding hearts\n\n'
-            'What\'s weighing on your soul today?\n'
-            '• 💭 "I\'ve been carrying this secret for years..."\n'
-            '• ❤️ "I\'m learning to love myself again after everything"\n'
-            '• 🌟 "Today I conquered a fear I thought would break me"\n'
-            '• 🤝 "I need someone to understand what I\'m going through"\n\n'
-            'Your words have power - they can heal you and help others\n\n'
-            'Ready to share? Just type your message below and send it to me\n'
-            'We\'re here with open hearts 💕',
+            'Alright, brave soul 😎\n'
+            'Drop your confession below…\n'
+            'No one will know it\'s you — we keep it fully anonymous.',
             reply_markup=reply_markup
         )
         return ASK_CONFESSION
